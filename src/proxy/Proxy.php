@@ -27,6 +27,8 @@ class Proxy
     public $hasStopped = false;
 
     private $players = [];
+    private $dataFolder;
+    private $config = [];
 
 
     public static function getInstance()
@@ -52,6 +54,18 @@ class Proxy
         ', 'HELLO');
     }
 
+    private function loadConfig()
+    {
+        $configPath = $this->getDataFolder() . "proxy.yml";
+        if (file_exists($configPath)) {
+            $this->config = yaml_parse_file($configPath);
+            $this->getLogger()->info("Configuração carregada com sucesso.");
+        } else {
+            $this->getLogger()->critical("Arquivo de configuração não encontrado!");
+            $this->shutdown();
+        }
+    }
+
     public function __construct(\ClassLoader $classLoader, MainLogger $logger, $filePath, $dataPath)
     {
         try {
@@ -61,20 +75,38 @@ class Proxy
             $this->logger = $logger;
             $this->filePath = $filePath;
             $this->dataPath = $dataPath;
+            $this->dataFolder = $dataPath;
+
+            $configPath = $this->getDataFolder() . "proxy.yml";
+
+            if (!file_exists($configPath)) {
+                $resourcePath = $this->getResourcePath("proxy.yml");
+
+                if (file_exists($resourcePath)) {
+                    copy($resourcePath, $configPath);
+                    $this->getLogger()->info("Copied default proxy.yml from resources.");
+                } else {
+                    $this->getLogger()->critical("Missing proxy.yml in resources folder!");
+                    return;
+                }
+            }
+
+            // Carrega a configuração do arquivo YAML
+            $this->loadConfig();
 
             $this->hello();
             $logger->info('Proxy iniciando...');
 
+            // Usa os valores do arquivo de configuração
             $server = [
-                'ip' => '51.81.47.131',
-                'port' => 25562
+                'ip' => $this->config['target_server']['ip'],
+                'port' => $this->config['target_server']['port']
             ];
-            //$server = [
-            //    'ip' => 'us1.learxd.me',
-            //    'port' => 19132
-            //];
 
-            $this->socket = $socket = new Socket('0.0.0.0', 25562);
+            $proxyIp = $this->config['proxy']['ip'];
+            $proxyPort = $this->config['proxy']['port'];
+
+            $this->socket = $socket = new Socket($proxyIp, $proxyPort);
 
             Socket::addListener($this->socket, function ($buffer, $len, $source, $port) use ($socket, $logger, $server) {
                 $pid = ord($buffer{0});
@@ -131,7 +163,7 @@ class Proxy
             PacketManager::registerPackets();
             PacketManager::registerDataPackets();
 
-            $logger->info('Servidor iniciado com sucesso!');
+            $logger->info("Servidor iniciado em {$proxyIp}:{$proxyPort} apontando para {$server['ip']}:{$server['port']}");
             Socket::init();
 
             $this->tickProcessor();
@@ -249,4 +281,11 @@ class Proxy
         return $this->players[$address . ':' . $port] ?? false;
     }
 
+    public function getResourcePath(string $name): string {
+        return __DIR__ . DIRECTORY_SEPARATOR . "resources" . DIRECTORY_SEPARATOR . $name;
+    }
+
+    public function getDataFolder() : string{
+        return $this->dataFolder;
+    }
 }

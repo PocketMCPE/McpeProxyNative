@@ -1,0 +1,16 @@
+# Configuração do McpeProxyNative
+# Para Minecraft PE 0.15.10
+
+# Configuração do servidor proxy
+proxy:
+  # Endereço IP para o proxy escutar (0.0.0.0 = todas as interfaces)
+  ip: "0.0.0.0"
+  # Porta para o proxy escutar
+  port: 25562
+
+# Configuração do servidor destino
+target_server:
+  # Endereço IP do servidor destino
+  ip: "127.0.0.1"
+  # Porta do servidor destino
+  port: 19132

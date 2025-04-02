@@ -96,23 +96,8 @@ class Player extends entity\Entity
 
         foreach ($dataPackets as $packet) {
             var_dump("[DATAPACKET] PLAYER => ");
-            //$packet->decode();
             var_dump($packet);
         }
-        //if ($dataPacket::NETWORK_ID === Info::LOGIN_PACKET) {
-            //$dataPacket->decode();
-            //var_dump($dataPacket);
-            //var_dump("AAA");
-
-            //->decode();
-            //$pk = new TextPacket();
-            //$pk->type = $dataPacket->type;
-            //$pk->source = $dataPacket->source;
-            //$pk->message = $dataPacket->message === "Quem é gay?" ? "O smallking é gay!" : $dataPacket->message;
-            //$pk->encode();
-
-            //$pk = PacketManager::batchPacket($pk);
-        //}
 
         return $pk;
     }
@@ -126,26 +111,8 @@ class Player extends entity\Entity
     {
         $pk = null;
 
-        //var_dump("[DATAPACKET] SERVER => " . get_class($dataPacket));
-
         var_dump("SERVER => PLAYER ");
         var_dump($dataPacket);
-
-
-        //switch ($dataPacket->pid()) {
-        //    case Info::TEXT_PACKET:
-        //        $dataPacket->decode();
-////
-        //        var_dump($dataPacket);
-        //        if($dataPacket->type === 0) {
-        //            $pk = new TextPacket();
-        //            $pk->type = TextPacket::TYPE_CHAT;
-        //            $pk->message = "§c[PROXY] Smallking é gay";
-        //            $pk->encode();
-////
-        //        }
-        //        break;
-        //}
 
         return $pk;
     }
